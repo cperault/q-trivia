@@ -85,7 +85,7 @@ extension URLSession {
         }
         components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         let request = URLRequest(url: components.url!)
-        
+
         let task = URLSession.shared.dataTask(with: request) { (data: Data?, response: URLResponse?, error: Error?) in
             guard let data = data else {
                 if let error = error {

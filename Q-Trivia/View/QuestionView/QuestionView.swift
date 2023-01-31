@@ -38,6 +38,22 @@ struct QuestionView: View {
     @State private var tabSelection: Int = 0
     
     @AppStorage("displayName") private var displayName = "SOLO PLAYER"
+    @AppStorage("sessionToken") private var sessionToken = ""
+    @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
+    
+    private func fetchSessionToken() {
+        URLSession.shared.request(url: Constants.sessionRequestURL, expectedEncodingType: SessionToken.self) { (result: Result<SessionToken, Error>) in
+            switch result {
+            case .success(let response):
+                sessionToken = response.token
+                sessionTokenStatus = .Valid
+            case .failure(let error):
+                sessionToken = ""
+                sessionTokenStatus = .Empty
+                print("Could not retrieve session token from API. \(error.localizedDescription)")
+            }
+        }
+    }
     
     private func getQuestions() {
         var queryParameters = [
@@ -49,10 +65,27 @@ struct QuestionView: View {
             queryParameters["amount"] = "\(gameValues.questionCount * allPlayers.filter({ $0.type == "multiplayer" }).count)"
         }
         
+        if sessionToken.isEmpty || sessionTokenStatus == .Empty {
+            fetchSessionToken()
+        }
+        
+        if sessionTokenStatus == .Valid && !sessionToken.isEmpty {
+            queryParameters["token"] = sessionToken
+        }
+        
         URLSession.shared.requestWithParams(url: Constants.triviaQuestionURL, parameters: queryParameters, expectedEncodingType: QuestionAPIResponse.self) { (result: Result<QuestionAPIResponse, Error>) in
             switch result {
             case .success(let response):
                 DispatchQueue.main.async {
+                    print("response: \(response)")
+                    switch response.response_code {
+                    case 0:
+                        sessionTokenStatus = .Valid
+                    case 1, 2, 3, 4:
+                        sessionTokenStatus = .Empty
+                    default:
+                        sessionTokenStatus = .Empty
+                    }
                     gameValues.gameQuestions = response.results
                     prepareGame()
                 }

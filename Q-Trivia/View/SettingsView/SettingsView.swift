@@ -21,6 +21,8 @@ struct SettingsView: View {
     @State private var playerName: String = ""
     
     @AppStorage("displayName") private var displayName = "SOLO PLAYER"
+    @AppStorage("sessionToken") private var sessionToken = ""
+    @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
     
     private func clearAllData() {
         if currentCategories.count > 0 {
@@ -64,6 +66,8 @@ struct SettingsView: View {
         }
         
         displayName = "SOLO PLAYER"
+        sessionToken = ""
+        sessionTokenStatus = .Empty
     }
     
     private func saveData() {
@@ -120,7 +124,7 @@ struct SettingsView: View {
                                 }
                         }
                     }
-                    Button("Delete all data", role: .destructive, action: {
+                    Button("Delete All Data", role: .destructive, action: {
                         isClearingAllData = true
                     })
                     .disabled(!appHasSavedData)
@@ -129,7 +133,7 @@ struct SettingsView: View {
         }
         .navigationBarTitle("Q-Trivia Settings", displayMode: .inline)
         .alert("This will remove all stored gameplay data. This cannot be undone. Are you sure?", isPresented: $isClearingAllData, actions: {
-            Button("Delete all data") {
+            Button("Delete All Data") {
                 clearAllData()
             }
             Button("Cancel", role: .cancel) {}

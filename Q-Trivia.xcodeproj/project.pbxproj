@@ -42,6 +42,7 @@
 		00B0E2DC298748E100D2F1EC /* ScoreboardViewDeleteScoresButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B0E2DB298748E100D2F1EC /* ScoreboardViewDeleteScoresButtonView.swift */; };
 		00EF1B7B29864219008C808A /* EndGameButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00EF1B7A29864219008C808A /* EndGameButtonView.swift */; };
 		00EF1B7D2986425E008C808A /* QuestionViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00EF1B7C2986425E008C808A /* QuestionViewModifiers.swift */; };
+		00FE94EF29886FEE0044B948 /* APISessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FE94EE29886FEE0044B948 /* APISessionModel.swift */; };
 		2897B41C4F50AB259E05F087 /* Pods_Q_Trivia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EFC3E4BAFB84A7D94688A000 /* Pods_Q_Trivia.framework */; };
 /* End PBXBuildFile section */
 
@@ -102,6 +103,7 @@
 		00B0E2DB298748E100D2F1EC /* ScoreboardViewDeleteScoresButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreboardViewDeleteScoresButtonView.swift; sourceTree = "<group>"; };
 		00EF1B7A29864219008C808A /* EndGameButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndGameButtonView.swift; sourceTree = "<group>"; };
 		00EF1B7C2986425E008C808A /* QuestionViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionViewModifiers.swift; sourceTree = "<group>"; };
+		00FE94EE29886FEE0044B948 /* APISessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APISessionModel.swift; sourceTree = "<group>"; };
 		7DA9AE1A8FD9E96A28894AF8 /* Pods-Q-Trivia.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Q-Trivia.debug.xcconfig"; path = "Target Support Files/Pods-Q-Trivia/Pods-Q-Trivia.debug.xcconfig"; sourceTree = "<group>"; };
 		E54D44D9DBA2251640688207 /* Pods-Q-Trivia.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Q-Trivia.release.xcconfig"; path = "Target Support Files/Pods-Q-Trivia/Pods-Q-Trivia.release.xcconfig"; sourceTree = "<group>"; };
 		EFC3E4BAFB84A7D94688A000 /* Pods_Q_Trivia.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Q_Trivia.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -209,6 +211,7 @@
 		009A27112985D1EE00BB1233 /* Q-Trivia */ = {
 			isa = PBXGroup;
 			children = (
+				00FE94ED29886FC70044B948 /* API */,
 				008E008F29861DC500B01E7B /* Info.plist */,
 				009A275D2985FE1900BB1233 /* Publishers */,
 				009A27452985D49900BB1233 /* Extensions */,
@@ -314,6 +317,14 @@
 				009A275E2985FE5200BB1233 /* GameValues.swift */,
 			);
 			path = Publishers;
+			sourceTree = "<group>";
+		};
+		00FE94ED29886FC70044B948 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				00FE94EE29886FEE0044B948 /* APISessionModel.swift */,
+			);
+			path = API;
 			sourceTree = "<group>";
 		};
 		107ABD5A30D6C699B3F63153 /* Frameworks */ = {
@@ -531,6 +542,7 @@
 				009A27132985D1EE00BB1233 /* Q_TriviaApp.swift in Sources */,
 				00EF1B7D2986425E008C808A /* QuestionViewModifiers.swift in Sources */,
 				0056D794298614A0007F6C40 /* CategoryModel.swift in Sources */,
+				00FE94EF29886FEE0044B948 /* APISessionModel.swift in Sources */,
 				0056D796298617A1007F6C40 /* ScoreboardView.swift in Sources */,
 				00A33619298742DD00A4B53A /* ScoreboardViewHomeButtonView.swift in Sources */,
 				008E0092298622AE00B01E7B /* QuestionView.swift in Sources */,

@@ -15,6 +15,9 @@ struct MainView: View {
     @State private var isPlayingMulti: Bool = false
     @State private var isViewingScoreboard: Bool = false
     
+    @AppStorage("sessionToken") private var sessionToken = ""
+    @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
+    
     // FETCH REQUESTS
     @FetchRequest(
         entity: FinishedGame.entity(),
@@ -41,6 +44,7 @@ struct MainView: View {
             // BUTTONS
             MainViewButtonView(
                 buttonAction: {
+                    gameValues.gameMode = "solo"
                     isPlayingSolo = true
                 },
                 buttonText: "Quick Play",
@@ -49,6 +53,7 @@ struct MainView: View {
             
             MainViewButtonView(
                 buttonAction: {
+                    gameValues.gameMode = "multiplayer"
                     isPlayingMulti = true
                 },
                 buttonText: "Multiplayer",
@@ -76,6 +81,21 @@ struct MainView: View {
         .navigationDestination(isPresented: $isViewingScoreboard) {
             ScoreboardView()
                 .environmentObject(gameValues)
+        }
+        .onAppear {
+            if sessionToken.isEmpty || sessionTokenStatus == .Empty {
+                URLSession.shared.request(url: Constants.sessionRequestURL, expectedEncodingType: SessionToken.self) { (result: Result<SessionToken, Error>) in
+                    switch result {
+                    case .success(let response):
+                        sessionToken = response.token
+                        sessionTokenStatus = .Valid
+                    case .failure(let error):
+                        sessionToken = ""
+                        sessionTokenStatus = .Empty
+                        print("Could not retrieve session token from API. \(error.localizedDescription)")
+                    }
+                }
+            }
         }
         .modifier(MainViewBackgroundModifier())
         .toolbar {

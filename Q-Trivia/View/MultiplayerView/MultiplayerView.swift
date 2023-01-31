@@ -39,7 +39,7 @@ struct MultiplayerView: View {
                     player.id = UUID()
                     player.name = playerName
                     player.score = 0
-                    player.isPlaying = false
+                    player.isPlaying = true
                     player.type = "multiplayer"
                     playerName = ""
                     saveData()
