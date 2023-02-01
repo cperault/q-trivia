@@ -10,10 +10,12 @@ import SwiftUI
 struct MainView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @EnvironmentObject var gameValues: GameValues
+    @StateObject var networkEnforcement = NetworkEnforcement()
     
     @State private var isPlayingSolo: Bool = false
     @State private var isPlayingMulti: Bool = false
     @State private var isViewingScoreboard: Bool = false
+    @State private var isNotConnectedToNetwork: Bool = false
     
     @AppStorage("sessionToken") private var sessionToken = ""
     @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty

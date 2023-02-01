@@ -77,7 +77,6 @@ struct QuestionView: View {
             switch result {
             case .success(let response):
                 DispatchQueue.main.async {
-                    print("response: \(response)")
                     switch response.response_code {
                     case 0:
                         sessionTokenStatus = .Valid

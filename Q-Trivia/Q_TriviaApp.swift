@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct Q_TriviaApp: App {
     @Environment(\.scenePhase) var scenePhase
+    @StateObject var networkEnforcement = NetworkEnforcement()
 
     let persistenceController = PersistenceController.shared
 
@@ -17,6 +18,7 @@ struct Q_TriviaApp: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(networkEnforcement)
         }
         .onChange(of: scenePhase) { _ in
             persistenceController.save()

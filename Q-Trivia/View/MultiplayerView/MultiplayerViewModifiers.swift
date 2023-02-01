@@ -21,6 +21,7 @@ struct MultiplayerViewTextFieldModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textFieldStyle(RoundedBorderTextFieldStyle())
+            .multilineTextAlignment(.center)
     }
 }
 

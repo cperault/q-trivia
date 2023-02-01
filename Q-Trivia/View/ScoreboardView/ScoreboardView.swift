@@ -73,7 +73,7 @@ struct ScoreboardView: View {
     private func showRecentGameDetails(game: Game) -> some View {
         return HStack {
             if let session = game.session {
-                Text("\(session.formatted(date: .numeric, time: .shortened))")
+                Text("\(session.formatted(.dateTime.day().month(.twoDigits).year(.twoDigits).hour().minute()))")
                 if let players = game.players,
                    let playerCount = players.count {
                     Spacer()

@@ -12,6 +12,7 @@
 		0056D794298614A0007F6C40 /* CategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0056D793298614A0007F6C40 /* CategoryModel.swift */; };
 		0056D796298617A1007F6C40 /* ScoreboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0056D795298617A1007F6C40 /* ScoreboardView.swift */; };
 		0056D798298617BF007F6C40 /* MultiplayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0056D797298617BF007F6C40 /* MultiplayerView.swift */; };
+		00634BBA298AD36900F36312 /* NetworkEnforcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00634BB9298AD36900F36312 /* NetworkEnforcement.swift */; };
 		008E0092298622AE00B01E7B /* QuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008E0091298622AE00B01E7B /* QuestionView.swift */; };
 		008E00942986232F00B01E7B /* CategoryButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008E00932986232F00B01E7B /* CategoryButtonView.swift */; };
 		008E00962986237D00B01E7B /* CategoryViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008E00952986237D00B01E7B /* CategoryViewModifiers.swift */; };
@@ -69,6 +70,7 @@
 		0056D793298614A0007F6C40 /* CategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryModel.swift; sourceTree = "<group>"; };
 		0056D795298617A1007F6C40 /* ScoreboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreboardView.swift; sourceTree = "<group>"; };
 		0056D797298617BF007F6C40 /* MultiplayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiplayerView.swift; sourceTree = "<group>"; };
+		00634BB9298AD36900F36312 /* NetworkEnforcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkEnforcement.swift; sourceTree = "<group>"; };
 		008E008F29861DC500B01E7B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		008E0091298622AE00B01E7B /* QuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionView.swift; sourceTree = "<group>"; };
 		008E00932986232F00B01E7B /* CategoryButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryButtonView.swift; sourceTree = "<group>"; };
@@ -168,6 +170,14 @@
 			path = ScoreboardView;
 			sourceTree = "<group>";
 		};
+		00634BB8298AD35300F36312 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				00634BB9298AD36900F36312 /* NetworkEnforcement.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
 		008E0090298622A500B01E7B /* QuestionView */ = {
 			isa = PBXGroup;
 			children = (
@@ -211,6 +221,7 @@
 		009A27112985D1EE00BB1233 /* Q-Trivia */ = {
 			isa = PBXGroup;
 			children = (
+				00634BB8298AD35300F36312 /* Network */,
 				00FE94ED29886FC70044B948 /* API */,
 				008E008F29861DC500B01E7B /* Info.plist */,
 				009A275D2985FE1900BB1233 /* Publishers */,
@@ -538,6 +549,7 @@
 				009A27532985DF4900BB1233 /* SettingsButtonView.swift in Sources */,
 				009A275F2985FE5200BB1233 /* GameValues.swift in Sources */,
 				0056D79229861396007F6C40 /* Constants.swift in Sources */,
+				00634BBA298AD36900F36312 /* NetworkEnforcement.swift in Sources */,
 				00EF1B7B29864219008C808A /* EndGameButtonView.swift in Sources */,
 				009A27132985D1EE00BB1233 /* Q_TriviaApp.swift in Sources */,
 				00EF1B7D2986425E008C808A /* QuestionViewModifiers.swift in Sources */,

@@ -9,7 +9,9 @@ import SwiftUI
 
 struct CategoryView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
+    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var gameValues: GameValues
+    @EnvironmentObject var networkEnforcement: NetworkEnforcement
     
     // FETCH REQUESTS
     @FetchRequest(
@@ -25,6 +27,7 @@ struct CategoryView: View {
     @State private var selectedCategory: CategoryModel? = nil
     @State private var isPresentingConfirmation: Bool = false
     @State private var isReadyToStartGame: Bool = false
+    @State private var isNotConnectedToNetwork: Bool = false
     
     private var randomCategory: (Int, String) {
         let category = categories[Int.random(in: 0..<categories.count)]
@@ -82,7 +85,11 @@ struct CategoryView: View {
             .modifier(CategoryListBackgroundModifier())
             .alert("Your trivia category is \(confirmedCategoryName). \nReady to play?", isPresented: $isPresentingConfirmation, actions: {
                 Button("Yes, I'm ready!") {
-                    isReadyToStartGame = true
+                    if !networkEnforcement.isConnected {
+                        isNotConnectedToNetwork = true
+                    } else {
+                        isReadyToStartGame = true
+                    }
                 }
                 Button("Cancel", role: .cancel) {}
             })
@@ -93,12 +100,16 @@ struct CategoryView: View {
         }
         .navigationBarTitle("Categories", displayMode: .inline)
         .onAppear {
-            if categories.count <= 0 {
-                if allCategories.count <= 0 {
-                    fetchCategories()
-                } else {
-                    for category in allCategories {
-                        categories.append(CategoryModel(id: Int(category.id), name: category.name ?? "N/A"))
+            if !networkEnforcement.isConnected {
+                isNotConnectedToNetwork = true
+            } else {
+                if categories.count <= 0 {
+                    if allCategories.count <= 0 {
+                        fetchCategories()
+                    } else {
+                        for category in allCategories {
+                            categories.append(CategoryModel(id: Int(category.id), name: category.name ?? "N/A"))
+                        }
                     }
                 }
             }
@@ -111,5 +122,10 @@ struct CategoryView: View {
                 }
             }, buttonIcon: "dice")
         }
+        .alert("Uh oh, it looks like you're not connected to the internet. Please try again when you're reconnected.", isPresented: $isNotConnectedToNetwork, actions: {
+            Button("Got it", role: .cancel) {
+                presentationMode.wrappedValue.dismiss()
+            }
+        })
     }
 }
