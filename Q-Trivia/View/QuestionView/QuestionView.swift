@@ -9,7 +9,6 @@ import SwiftUI
 
 struct QuestionView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
-    @EnvironmentObject var gameValues: GameValues
     
     // FETCH REQUESTS
     @FetchRequest(
@@ -29,17 +28,27 @@ struct QuestionView: View {
                 ascending: true)
         ]
     ) private var allPlayers: FetchedResults<Player>
-    
+
     @State private var guesses: [String:Bool] = [:]
     @State private var isEndingGame: Bool = false
     @State var isPresentingConfirmation: Bool = false
     @State var allQuestionsAnswered: Bool = false
     @State private var answeredCount: Int = 0
     @State private var tabSelection: Int = 0
-    
+
     @AppStorage("displayName") private var displayName = "SOLO PLAYER"
     @AppStorage("sessionToken") private var sessionToken = ""
     @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
+
+    @SceneStorage("gameQuestions") private var gameQuestions = [QuestionModel]()
+    @SceneStorage("questions") private var questions = [QuestionModel]()
+
+    @AppStorage("currentGameSessionUUID") private var currentGameSessionUUID = UUID()
+    @AppStorage("questionCount") private var questionCount = 4
+    @AppStorage("gameMode") private var gameMode = "solo"
+    @AppStorage("selectedCategoryID") private var selectedCategoryID = 0
+    @AppStorage("selectedCategoryName") private var selectedCategoryName = ""
+    @AppStorage("selectedGameID") private var selectedGameID = UUID()
     
     private func fetchSessionToken() {
         URLSession.shared.request(url: Constants.sessionRequestURL, expectedEncodingType: SessionToken.self) { (result: Result<SessionToken, Error>) in
@@ -57,12 +66,12 @@ struct QuestionView: View {
     
     private func getQuestions() {
         var queryParameters = [
-            "amount": "\(gameValues.questionCount)",
-            "category": "\(gameValues.selectedCategoryID)"
+            "amount": "\(questionCount)",
+            "category": "\(selectedCategoryID)"
         ]
         
-        if gameValues.gameMode == "multiplayer" && allPlayers.filter({ $0.type == "multiplayer" }).count > 0 {
-            queryParameters["amount"] = "\(gameValues.questionCount * allPlayers.filter({ $0.type == "multiplayer" }).count)"
+        if gameMode == "multiplayer" && allPlayers.filter({ $0.type == "multiplayer" }).count > 0 {
+            queryParameters["amount"] = "\(questionCount * allPlayers.filter({ $0.type == "multiplayer" }).count)"
         }
         
         if sessionToken.isEmpty || sessionTokenStatus == .Empty {
@@ -85,7 +94,7 @@ struct QuestionView: View {
                     default:
                         sessionTokenStatus = .Empty
                     }
-                    gameValues.gameQuestions = response.results
+                    gameQuestions = response.results
                     prepareGame()
                 }
             case .failure(let error):
@@ -103,7 +112,7 @@ struct QuestionView: View {
     
     private func updatePlayerInfo(for player: String, with points: Int) -> Void {
         var pointsTotal: Double = 0
-        if let currentGame = (allGames.filter { $0.id == gameValues.currentGameSessionUUID }.first) {
+        if let currentGame = (allGames.filter { $0.id == currentGameSessionUUID }.first) {
             pointsTotal = currentGame.scores?[player] ?? 0
             pointsTotal += Double(points)
             currentGame.scores?[player] = Double(pointsTotal)
@@ -112,12 +121,12 @@ struct QuestionView: View {
     }
     
     private func prepareGame() {
-        if gameValues.gameMode == "multiplayer" {
-            let questionsDivided: [[QuestionModel]] = gameValues.gameQuestions.chunked(into: (gameValues.gameQuestions.count / allPlayers.filter{ $0.type == "multiplayer" }.count))
+        if gameMode == "multiplayer" {
+            let questionsDivided: [[QuestionModel]] = gameQuestions.chunked(into: (gameQuestions.count / allPlayers.filter{ $0.type == "multiplayer" }.count))
             var counter: Int = 0
             for (index, _) in Array(questionsDivided.enumerated()){
                 for _ in questionsDivided[index] {
-                    assignPlayerToQuestion(question: &gameValues.gameQuestions[counter], player: allPlayers.filter{ $0.type == "multiplayer" }[index])
+                    assignPlayerToQuestion(question: &gameQuestions[counter], player: allPlayers.filter{ $0.type == "multiplayer" }[index])
                     counter += 1
                 }
             }
@@ -130,30 +139,30 @@ struct QuestionView: View {
             player.isPlaying = true
             player.type = "solo"
             
-            for (index, _) in Array(gameValues.gameQuestions.enumerated()) {
-                assignPlayerToQuestion(question: &gameValues.gameQuestions[index], player: player)
+            for (index, _) in Array(gameQuestions.enumerated()) {
+                assignPlayerToQuestion(question: &gameQuestions[index], player: player)
             }
             
             saveData()
         }
         
         // put questions in order
-        gameValues.gameQuestions.enumerated().forEach { idx, _ in
-            gameValues.gameQuestions[idx].questionOrder = idx
-            gameValues.gameQuestions[idx].hasAGuess = false
+        gameQuestions.enumerated().forEach { idx, _ in
+            gameQuestions[idx].questionOrder = idx
+            gameQuestions[idx].hasAGuess = false
         }
         
-        gameValues.questions = gameValues.gameQuestions
+        questions = gameQuestions
     }
     
     private func endGame(finished: Bool) -> Void {
-        let currentGameUUID = gameValues.currentGameSessionUUID
+        let currentGameUUID = currentGameSessionUUID
         let currentGame = allGames.filter { $0.id == currentGameUUID }.first
         
         if finished {
             var gameQuestions: [GameQuestion] = []
             
-            gameValues.questions.enumerated().forEach { idx, question in
+            questions.enumerated().forEach { idx, question in
                 let fgq = GameQuestion(context: managedObjectContext)
                 fgq.questionOrder = Int16(idx)
                 fgq.forGame = currentGameUUID
@@ -182,16 +191,21 @@ struct QuestionView: View {
             
             saveData()
             
-            gameValues.selectedGameID = currentGameUUID
+            selectedGameID = currentGameUUID
             allQuestionsAnswered = true
         } else {
-            // don't save the game, but do delete current game
-            managedObjectContext.delete(currentGame!)
-            saveData()
+            // don't save the game, but do delete current game if there is one
+            if let cg = currentGame {
+                managedObjectContext.delete(cg)
+                saveData()
+            }
+
             isEndingGame = true
         }
         
         answeredCount = 0
+        gameQuestions = [QuestionModel]()
+        questions = [QuestionModel]()
     }
     
     private func newGame() -> Void {
@@ -201,7 +215,7 @@ struct QuestionView: View {
         game.id = gameID
         game.isFinished = false
         
-        if gameValues.gameMode == "multiplayer" {
+        if gameMode == "multiplayer" {
             // get current players
             let players = allPlayers.filter { $0.type == "multiplayer" }.compactMap { $0.name }
             
@@ -219,11 +233,11 @@ struct QuestionView: View {
             game.scores = [displayName: 0]
         }
         
-        game.type = gameValues.gameMode
+        game.type = gameMode
         game.session = Date.now
         
-        gameValues.currentGameSessionUUID = gameID
-        
+        currentGameSessionUUID = gameID
+
         saveData()
     }
     
@@ -236,16 +250,16 @@ struct QuestionView: View {
                 updatePlayerInfo(for: question.forPlayer ?? "" , with: 1)
             }
             
-            gameValues.gameQuestions[index].hasAGuess = true
+            gameQuestions[index].hasAGuess = true
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 // only end game if all questions have truly been answered
-                if answeredCount == gameValues.questions.count {
+                if answeredCount == questions.count {
                     endGame(finished: true)
                 } else {
                     // go to first unanswered question
                     let nextQuestion = nextQuestion()
-                    let newQuestionIndex = gameValues.questions.firstIndex(of: nextQuestion)!
+                    let newQuestionIndex = questions.firstIndex(of: nextQuestion)!
                     tabSelection = newQuestionIndex
                 }
             }
@@ -254,9 +268,9 @@ struct QuestionView: View {
     
     private func nextQuestion() -> QuestionModel {
         // find all questions without a guess
-        let unansweredQuestion = gameValues.gameQuestions.filter { $0.hasAGuess == false }.sorted { $0.questionOrder! < $1.questionOrder! }.first
+        let unansweredQuestion = gameQuestions.filter { $0.hasAGuess == false }.sorted { $0.questionOrder! < $1.questionOrder! }.first
         
-        let nextQuestion = gameValues.questions.filter { $0.question == unansweredQuestion?.question }.first!
+        let nextQuestion = questions.filter { $0.question == unansweredQuestion?.question }.first!
         
         return nextQuestion
     }
@@ -284,9 +298,9 @@ struct QuestionView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             Spacer()
-            Image(getCategoryNameAndIcon(categoryName: gameValues.selectedCategoryName)[1])
+            Image(getCategoryNameAndIcon(categoryName: selectedCategoryName)[1])
             TabView(selection: $tabSelection) {
-                ForEach(Array(gameValues.gameQuestions.enumerated()), id: \.offset) { index, question in
+                ForEach(Array(gameQuestions.enumerated()), id: \.offset) { index, question in
                     VStack {
                         Text(question.questionParsed)
                             .font(.title2)
@@ -309,7 +323,7 @@ struct QuestionView: View {
                                 .tag(index)
                             }
                         }
-                        Text(gameValues.gameMode == "multiplayer" ? "Player's Turn: \(question.forPlayer ?? "")" : "")
+                        Text(gameMode == "multiplayer" ? "Player's Turn: \(question.forPlayer ?? "")" : "")
                     }
                     .padding(30)
                     .frame(minHeight: 0, maxHeight: .infinity)
@@ -320,11 +334,9 @@ struct QuestionView: View {
         }
         .navigationDestination(isPresented: $isEndingGame) {
             MainView()
-                .environmentObject(gameValues)
         }
         .navigationDestination(isPresented: $allQuestionsAnswered) {
             ScoreboardDetailsView(isViewingFromFinishedGame: true)
-                .environmentObject(gameValues)
         }
         .onAppear {
             getQuestions()

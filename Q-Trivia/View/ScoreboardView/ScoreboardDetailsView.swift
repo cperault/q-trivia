@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ScoreboardDetailsView: View {
-    @EnvironmentObject var gameValues: GameValues
-
     // FETCH REQUESTS
     @FetchRequest(
         entity: FinishedGame.entity(),
@@ -32,10 +30,12 @@ struct ScoreboardDetailsView: View {
     @State var isViewingFromFinishedGame: Bool
     @State private var isReturningHome: Bool = false
     
+    @AppStorage("selectedGameID") private var selectedGameID = UUID()
+    
     private func scores() -> [String:Double] {
         var gameScores: [String:Double] = [:]
 
-        for g in (allGames.filter { $0.id == gameValues.selectedGameID }) {
+        for g in (allGames.filter { $0.id == selectedGameID }) {
             if let scores = g.scores {
                 gameScores = scores
             }
@@ -47,7 +47,7 @@ struct ScoreboardDetailsView: View {
     private func questions() -> [GameQuestion] {
         var gameQuestions: [GameQuestion] = []
         
-        let finishedGame = (allFinishedGames.filter { $0.id == gameValues.selectedGameID })
+        let finishedGame = (allFinishedGames.filter { $0.id == selectedGameID })
         
         for game in finishedGame {
             for question in game.gameQuestions?.allObjects as! [GameQuestion] {
@@ -100,7 +100,6 @@ struct ScoreboardDetailsView: View {
         }
         .navigationDestination(isPresented: $isReturningHome) {
             MainView()
-                .environmentObject(gameValues)
         }
     }
 }

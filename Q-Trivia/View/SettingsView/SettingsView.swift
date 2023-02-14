@@ -16,13 +16,21 @@ struct SettingsView: View {
     @FetchRequest(entity: GameQuestion.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \GameQuestion.id, ascending: true)]) var currentGameQuestions: FetchedResults<GameQuestion>
     
     @Environment(\.managedObjectContext) var managedObjectContext
-    @EnvironmentObject var gameValues: GameValues
+
     @State private var isClearingAllData: Bool = false
     @State private var playerName: String = ""
     
     @AppStorage("displayName") private var displayName = "SOLO PLAYER"
     @AppStorage("sessionToken") private var sessionToken = ""
     @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
+    @AppStorage("currentGameSessionUUID") private var currentGameSessionUUID = UUID()
+    @AppStorage("questionCount") private var questionCount = 4
+    @AppStorage("maxQuestionCount") private var maxQuestionCount = 10
+    @AppStorage("gameMode") private var gameMode = "solo"
+    @AppStorage("selectedCategoryID") private var selectedCategoryID = 0
+    @AppStorage("selectedCategoryName") private var selectedCategoryName = ""
+    @AppStorage("selectedGameID") private var selectedGameID = UUID()
+    
     
     private func clearAllData() {
         if currentCategories.count > 0 {
@@ -68,6 +76,12 @@ struct SettingsView: View {
         displayName = "SOLO PLAYER"
         sessionToken = ""
         sessionTokenStatus = .Empty
+        currentGameSessionUUID = UUID()
+        questionCount = 4
+        gameMode = "solo"
+        selectedCategoryID = 0
+        selectedCategoryName = ""
+        selectedGameID = UUID()
     }
     
     private func saveData() {
@@ -99,8 +113,8 @@ struct SettingsView: View {
             Form {
                 // QUESTION SETTINGS
                 Section(header: Text("Question Settings")) {
-                    Stepper(value: $gameValues.questionCount, in: 1...gameValues.maxQuestionCount) {
-                        Text("Number of Questions: \(gameValues.questionCount)")
+                    Stepper(value: $questionCount, in: 1...maxQuestionCount) {
+                        Text("Number of Questions: \(questionCount)")
                     }
                 }
                 

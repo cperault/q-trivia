@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MultiplayerView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
-    @EnvironmentObject var gameValues: GameValues
 
     // FETCH REQUESTS
     @FetchRequest(
@@ -115,7 +114,6 @@ struct MultiplayerView: View {
         }
         .navigationDestination(isPresented: $isReadyToPlay) {
             CategoryView()
-                .environmentObject(gameValues)
         }
         .modifier(MultiplayerViewVStackModifier())
         .modifier(MainViewBackgroundModifier())

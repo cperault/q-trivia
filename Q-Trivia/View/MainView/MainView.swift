@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MainView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
-    @EnvironmentObject var gameValues: GameValues
     @StateObject var networkEnforcement = NetworkEnforcement()
     
     @State private var isPlayingSolo: Bool = false
@@ -20,6 +19,8 @@ struct MainView: View {
     @AppStorage("sessionToken") private var sessionToken = ""
     @AppStorage("sessionTokenStatus") private var sessionTokenStatus: SessionTokenStatus = .Empty
     
+    @AppStorage("gameMode") private var gameMode = "solo"
+    
     // FETCH REQUESTS
     @FetchRequest(
         entity: FinishedGame.entity(),
@@ -29,6 +30,15 @@ struct MainView: View {
                 ascending: true)
         ]
     ) private var finishedGames: FetchedResults<FinishedGame>
+    
+    @FetchRequest(
+        entity: Game.entity(),
+        sortDescriptors: [
+            NSSortDescriptor(
+                keyPath: \Game.session,
+                ascending: true)
+        ]
+    ) private var allGames: FetchedResults<Game>
     
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
@@ -46,7 +56,7 @@ struct MainView: View {
             // BUTTONS
             MainViewButtonView(
                 buttonAction: {
-                    gameValues.gameMode = "solo"
+                    gameMode = "solo"
                     isPlayingSolo = true
                 },
                 buttonText: "Quick Play",
@@ -55,7 +65,7 @@ struct MainView: View {
             
             MainViewButtonView(
                 buttonAction: {
-                    gameValues.gameMode = "multiplayer"
+                    gameMode = "multiplayer"
                     isPlayingMulti = true
                 },
                 buttonText: "Multiplayer",
@@ -74,15 +84,12 @@ struct MainView: View {
         }
         .navigationDestination(isPresented: $isPlayingSolo) {
             CategoryView()
-                .environmentObject(gameValues)
         }
         .navigationDestination(isPresented: $isPlayingMulti) {
             MultiplayerView()
-                .environmentObject(gameValues)
         }
         .navigationDestination(isPresented: $isViewingScoreboard) {
             ScoreboardView()
-                .environmentObject(gameValues)
         }
         .onAppear {
             if sessionToken.isEmpty || sessionTokenStatus == .Empty {
@@ -98,12 +105,24 @@ struct MainView: View {
                     }
                 }
             }
+            
+            // we want to delete any games that were created but not finished (app crash or app being force-quit either by user or OS)
+            let currentGames = allGames.filter { !$0.isFinished }
+            if currentGames.count > 0 {
+                for game in currentGames {
+                    managedObjectContext.delete(game)
+                    do {
+                        try managedObjectContext.update()
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }
         }
         .modifier(MainViewBackgroundModifier())
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 SettingsButtonView()
-                    .environmentObject(gameValues)
             }
         }
         .navigationBarBackButtonHidden(true)

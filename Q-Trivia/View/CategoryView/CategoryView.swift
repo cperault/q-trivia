@@ -10,7 +10,6 @@ import SwiftUI
 struct CategoryView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var gameValues: GameValues
     @EnvironmentObject var networkEnforcement: NetworkEnforcement
     
     // FETCH REQUESTS
@@ -28,6 +27,9 @@ struct CategoryView: View {
     @State private var isPresentingConfirmation: Bool = false
     @State private var isReadyToStartGame: Bool = false
     @State private var isNotConnectedToNetwork: Bool = false
+    
+    @AppStorage("selectedCategoryID") private var selectedCategoryID = 0
+    @AppStorage("selectedCategoryName") private var selectedCategoryName = ""
     
     private var randomCategory: (Int, String) {
         let category = categories[Int.random(in: 0..<categories.count)]
@@ -68,13 +70,12 @@ struct CategoryView: View {
     
     private func updateCategorySelection(category: CategoryModel) -> Void {
         selectedCategory = category
-        gameValues.selectedCategoryID = category.id
-        gameValues.selectedCategoryName = category.name
+        selectedCategoryID = category.id
+        selectedCategoryName = category.name
         
         isPresentingConfirmation = true
     }
-    
-    
+
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             List(categories) { category in
@@ -96,7 +97,6 @@ struct CategoryView: View {
         }
         .navigationDestination(isPresented: $isReadyToStartGame) {
             QuestionView()
-                .environmentObject(gameValues)
         }
         .navigationBarTitle("Categories", displayMode: .inline)
         .onAppear {

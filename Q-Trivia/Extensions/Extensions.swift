@@ -115,3 +115,38 @@ extension Array {
         }
     }
 }
+
+extension Array: RawRepresentable where Element: Codable {
+    public init?(rawValue: String) {
+        guard let data = rawValue.data(using: .utf8) else {
+            return nil
+        }
+        do {
+            let result = try JSONDecoder().decode([Element].self, from: data)
+            self = result
+        } catch {
+            return nil
+        }
+    }
+    
+    public var rawValue: String {
+        guard let data = try? JSONEncoder().encode(self),
+              let result = String(data: data, encoding: .utf8)
+        else {
+            return "[]"
+        }
+        return result
+    }
+}
+
+extension UUID: RawRepresentable {
+    public var rawValue: String {
+        self.uuidString
+    }
+    
+    public typealias RawValue = String
+    
+    public init?(rawValue: RawValue) {
+        self.init(uuidString: rawValue)
+    }
+}

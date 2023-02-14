@@ -9,8 +9,7 @@ import SwiftUI
 
 struct SettingsButtonView: View {
     @State private var isViewingSettings: Bool = false
-    @EnvironmentObject var gameValues: GameValues
-    
+
     var body: some View {
         VStack {
             Button(action: {
@@ -25,7 +24,6 @@ struct SettingsButtonView: View {
         }
         .navigationDestination(isPresented: $isViewingSettings) {
             SettingsView()
-                .environmentObject(gameValues)
         }
     }
 }

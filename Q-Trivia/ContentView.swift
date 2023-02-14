@@ -9,13 +9,11 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @ObservedObject var gameValues: GameValues = GameValues()
 
     var body: some View {
         NavigationStack {
             MainView()
                 .environment(\.managedObjectContext, viewContext)
-                .environmentObject(gameValues)
         }
     }
 }

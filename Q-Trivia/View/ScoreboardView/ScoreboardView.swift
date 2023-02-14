@@ -28,7 +28,6 @@ struct QuestionItemRow: View {
 struct ScoreboardView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var gameValues: GameValues
     
     // FETCH REQUESTS
     @FetchRequest(
@@ -70,6 +69,8 @@ struct ScoreboardView: View {
     @State private var isClearingScoreboard: Bool = false
     @State private var isViewingScoreboardDetails: Bool = false
     
+    @AppStorage("selectedGameID") private var selectedGameID = UUID()
+    
     private func showRecentGameDetails(game: Game) -> some View {
         return HStack {
             if let session = game.session {
@@ -82,7 +83,7 @@ struct ScoreboardView: View {
                 Spacer()
                 ScoreboardViewDetailButtonView(buttonAction: {
                     if let gameID = game.id {
-                        gameValues.selectedGameID = gameID
+                        selectedGameID = gameID
                         isViewingScoreboardDetails = true
                     }
                 }, buttonText: nil, buttonIcon: "arrow.right.circle")
@@ -163,9 +164,8 @@ struct ScoreboardView: View {
         }
         .navigationTitle("Scoreboard")
         .navigationDestination(isPresented: $isViewingScoreboardDetails) {
-            if !gameValues.selectedGameID.uuidString.isEmpty {
+            if !selectedGameID.uuidString.isEmpty {
                 ScoreboardDetailsView(isViewingFromFinishedGame: false)
-                    .environmentObject(gameValues)
             }
         }
         .padding(20)
