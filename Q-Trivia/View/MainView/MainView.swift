@@ -40,6 +40,26 @@ struct MainView: View {
         ]
     ) private var allGames: FetchedResults<Game>
     
+    private func saveData() {
+        do {
+            try managedObjectContext.update()
+        } catch {
+            print(error.localizedDescription)
+        }
+    }
+    
+    private func cleanUpExcessScores(numberOfScoresToRemove: Int, from games: [FinishedGame]) {
+        let gameScoresToRemove = games.prefix(numberOfScoresToRemove)
+        
+        if gameScoresToRemove.count > 0 {
+            for game in gameScoresToRemove {
+                managedObjectContext.delete(game)
+                saveData()
+            }
+        }
+    }
+    
+    
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
             // TITLE
@@ -111,12 +131,23 @@ struct MainView: View {
             if currentGames.count > 0 {
                 for game in currentGames {
                     managedObjectContext.delete(game)
-                    do {
-                        try managedObjectContext.update()
-                    } catch {
-                        print(error.localizedDescription)
-                    }
+                    saveData()
                 }
+            }
+            
+            // recently, the threshold for max game score entries was set to 10; let's clean up the current scoreboards for players
+            let allSoloFinishedGames = finishedGames.filter({ $0.type == "solo" })
+            let numberOfSoloFinishedGames = allSoloFinishedGames.count
+            
+            let allMultiplayerFinishedGames = finishedGames.filter({ $0.type == "multiplayer" })
+            let numberOfMultiplayerFinishedGames = allMultiplayerFinishedGames.count
+            
+            if numberOfSoloFinishedGames > 10 {
+                cleanUpExcessScores(numberOfScoresToRemove: numberOfSoloFinishedGames - 10, from: allSoloFinishedGames)
+            }
+            
+            if numberOfMultiplayerFinishedGames > 10 {
+                cleanUpExcessScores(numberOfScoresToRemove: numberOfMultiplayerFinishedGames - 10, from: allMultiplayerFinishedGames)
             }
         }
         .modifier(MainViewBackgroundModifier())
