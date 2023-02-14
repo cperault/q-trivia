@@ -15,10 +15,19 @@ struct QuestionView: View {
         entity: Game.entity(),
         sortDescriptors: [
             NSSortDescriptor(
-                keyPath: \Game.id,
+                keyPath: \Game.session,
                 ascending: true)
         ]
     ) private var allGames: FetchedResults<Game>
+    
+    @FetchRequest(
+        entity: FinishedGame.entity(),
+        sortDescriptors: [
+            NSSortDescriptor(
+                keyPath: \FinishedGame.session,
+                ascending: true)
+        ]
+    ) private var allFinishedGames: FetchedResults<FinishedGame>
     
     @FetchRequest(
         entity: Player.entity(),
@@ -181,11 +190,25 @@ struct QuestionView: View {
             saveData()
             
             currentGame?.isFinished = true
+            
+            // let's first check how our scoreboard's looking; if we have more than 20 entries per mode: delete oldest first, then proceed to saving new finished game
+            let currentGameMode = currentGame?.type
+            let currentFinishedGamesOfCurrentGameMode = allFinishedGames.filter { $0.type == currentGameMode }
+            let currentFinishedGamesOfCurrentGameModeCount = currentFinishedGamesOfCurrentGameMode.count
+            
+            if currentFinishedGamesOfCurrentGameModeCount > 10 {
+                if let oldestFinishedGame = allFinishedGames.filter({ $0.type == currentGameMode }).first {
+                    managedObjectContext.delete(oldestFinishedGame)
+                    saveData()
+                }
+            }
+            
             let finishedGames = FinishedGame(context: managedObjectContext)
             let currentDate = Date.now
             finishedGames.session = currentDate
             finishedGames.id = currentGameUUID
             finishedGames.players = currentGame?.players
+            finishedGames.type = currentGame?.type
             finishedGames.scores = currentGame?.scores
             finishedGames.gameQuestions = Set(gameQuestions.map { $0 }) as? NSSet
             

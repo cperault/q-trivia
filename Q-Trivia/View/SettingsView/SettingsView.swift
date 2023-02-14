@@ -31,7 +31,6 @@ struct SettingsView: View {
     @AppStorage("selectedCategoryName") private var selectedCategoryName = ""
     @AppStorage("selectedGameID") private var selectedGameID = UUID()
     
-    
     private func clearAllData() {
         if currentCategories.count > 0 {
             for category in currentCategories {
@@ -137,11 +136,11 @@ struct SettingsView: View {
                                     }
                                 }
                         }
+                        Button("Delete All Data", role: .destructive, action: {
+                            isClearingAllData = true
+                        })
+                        .disabled(!appHasSavedData)
                     }
-                    Button("Delete All Data", role: .destructive, action: {
-                        isClearingAllData = true
-                    })
-                    .disabled(!appHasSavedData)
                 }
             }
         }

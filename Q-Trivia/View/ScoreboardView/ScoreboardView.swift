@@ -71,7 +71,7 @@ struct ScoreboardView: View {
     
     @AppStorage("selectedGameID") private var selectedGameID = UUID()
     
-    private func showRecentGameDetails(game: Game) -> some View {
+    private func showRecentGameDetails(game: FinishedGame) -> some View {
         return HStack {
             if let session = game.session {
                 Text("\(session.formatted(.dateTime.day().month(.twoDigits).year(.twoDigits).hour().minute()))")
@@ -125,7 +125,7 @@ struct ScoreboardView: View {
         }
 
         DispatchQueue.main.async {
-            if allGames.isEmpty {
+            if allFinishedGames.isEmpty || allGames.isEmpty {
                 presentationMode.wrappedValue.dismiss()
             }
         }
@@ -143,18 +143,18 @@ struct ScoreboardView: View {
         VStack(alignment: .center, spacing: 20) {
             List {
                 // SOLO GAME SCORES
-                if allGames.filter { $0.type == "solo" }.count > 0 {
+                if allFinishedGames.filter { $0.type == "solo" }.count > 0 {
                     Section(header: Text("Solo Games")) {
-                        ForEach(Array(allGames.filter { $0.type == "solo" }.enumerated()), id: \.offset) { index, game in
+                        ForEach(Array(allFinishedGames.filter { $0.type == "solo" }.enumerated()), id: \.offset) { index, game in
                             showRecentGameDetails(game: game)
                         }
                     }
                 }
                 
                 // MULTIPLAYER GAME SCORES
-                if allGames.filter { $0.type == "multiplayer" }.count > 0 {
+                if allFinishedGames.filter { $0.type == "multiplayer" }.count > 0 {
                     Section(header: Text("Multiplayer Games")) {
-                        ForEach(Array(allGames.filter { $0.type == "multiplayer" }.enumerated()), id: \.offset) { index, game in
+                        ForEach(Array(allFinishedGames.filter { $0.type == "multiplayer" }.enumerated()), id: \.offset) { index, game in
                             showRecentGameDetails(game: game)
                         }
                     }
