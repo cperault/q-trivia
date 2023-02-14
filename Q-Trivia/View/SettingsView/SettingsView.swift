@@ -136,11 +136,11 @@ struct SettingsView: View {
                                     }
                                 }
                         }
-                        Button("Delete All Data", role: .destructive, action: {
-                            isClearingAllData = true
-                        })
-                        .disabled(!appHasSavedData)
                     }
+                    Button("Delete All Data", role: .destructive, action: {
+                        isClearingAllData = true
+                    })
+                    .disabled(!appHasSavedData)
                 }
             }
         }
