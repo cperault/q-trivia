@@ -5,6 +5,7 @@ Objective-C.gitignore & Swift.gitignore
 
 # User settings
 xcuserdata/
+.DS_Store
 
 # Obj-C/Swift specific
 *.hmap

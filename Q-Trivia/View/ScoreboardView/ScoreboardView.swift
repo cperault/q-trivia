@@ -75,8 +75,8 @@ struct ScoreboardView: View {
         return HStack {
             if let session = game.session {
                 Text("\(session.formatted(.dateTime.day().month(.twoDigits).year(.twoDigits).hour().minute()))")
-                if let players = game.players,
-                   let playerCount = players.count {
+                if let players = game.players {
+                    let playerCount = players.count
                     Spacer()
                     Text("\(playerCount) \(playerCount > 1 ? "players" : "player")")
                 }
@@ -143,7 +143,7 @@ struct ScoreboardView: View {
         VStack(alignment: .center, spacing: 20) {
             List {
                 // SOLO GAME SCORES
-                if allFinishedGames.filter { $0.type == "solo" }.count > 0 {
+                if allFinishedGames.filter({ $0.type == "solo" }).count > 0 {
                     Section(header: Text("Solo Games")) {
                         ForEach(Array(allFinishedGames.filter { $0.type == "solo" }.enumerated()), id: \.offset) { index, game in
                             showRecentGameDetails(game: game)
@@ -152,7 +152,7 @@ struct ScoreboardView: View {
                 }
                 
                 // MULTIPLAYER GAME SCORES
-                if allFinishedGames.filter { $0.type == "multiplayer" }.count > 0 {
+                if allFinishedGames.filter({ $0.type == "multiplayer" }).count > 0 {
                     Section(header: Text("Multiplayer Games")) {
                         ForEach(Array(allFinishedGames.filter { $0.type == "multiplayer" }.enumerated()), id: \.offset) { index, game in
                             showRecentGameDetails(game: game)
